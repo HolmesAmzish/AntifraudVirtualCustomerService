@@ -38,7 +38,14 @@ function ChatApp() {
                 aiText += e.data;
                 setMessages(prev => {
                     const newMessages = [...prev];
-                    newMessages[newMessages.length - 1].text = aiText;
+                    const lastMsg = newMessages[newMessages.length - 1];
+                    
+                    // Keep last 5 characters as streaming text
+                    const streamingLength = Math.min(5, aiText.length);
+                    lastMsg.streamingText = aiText.slice(-streamingLength);
+                    lastMsg.completeText = aiText.slice(0, -streamingLength);
+                    lastMsg.streamingOpacity = 0.2; // Stronger fade effect
+                    
                     return newMessages;
                 });
             };
@@ -47,7 +54,10 @@ function ChatApp() {
                 eventSource.close();
                 setMessages(prev => {
                     const newMessages = [...prev];
-                    newMessages[newMessages.length - 1].text = aiText || 'Error receiving response';
+                    const lastMsg = newMessages[newMessages.length - 1];
+                    lastMsg.completeText = aiText || '接收失败';
+                    lastMsg.streamingText = '';
+                    lastMsg.streamingOpacity = 1;
                     return newMessages;
                 });
             };
@@ -72,8 +82,19 @@ function ChatApp() {
                         </div>
                     ) : (
                         <div key={i} className="text-gray-700 p-2 whitespace-pre-wrap">
-                            {msg.text}
-                        </div>
+                {msg.sender === 'ai' ? (
+                    <>
+                        <span className="complete-text">
+                            {msg.completeText || ''}
+                        </span>
+                        <span className="streaming-text" style={{opacity: msg.streamingOpacity || 1}}>
+                            {msg.streamingText || ''}
+                        </span>
+                    </>
+                ) : (
+                    <span>{msg.text}</span>
+                )}
+            </div>
                     )
                 ))}
                 <div ref={messagesEndRef} />
@@ -85,9 +106,9 @@ function ChatApp() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKey}
-                    placeholder="Type your message..."
+                    placeholder="输入问题..."
                 />
-                <button onClick={sendMessage} className="bg-blue-500 text-white px-4 rounded-r">Send</button>
+                <button onClick={sendMessage} className="bg-blue-500 text-white px-4 rounded-r">发送</button>
             </div>
         </div>
     );

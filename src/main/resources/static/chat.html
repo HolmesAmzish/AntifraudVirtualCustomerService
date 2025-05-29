@@ -3,22 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>反诈智能客服 - 聊天</title>
-    <!-- Tailwind CDN -->
+    <!-- Tailwind CDN (China Mirror) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .streaming-text {
+            transition: opacity 0.3s ease;
+        }
+        .streaming-text.streaming {
+            opacity: 0.7;
+        }
+        .streaming-text.complete {
+            opacity: 1;
+        }
+    </style>
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 h-screen">
     <div class="flex h-full">
-        <div id="side-bar" class="w-1/4 bg-white p-4 border-r">
-            <h2 class="text-xl font-bold mb-4">Pages</h2>
+        <div id="side-bar" class="w-1/6 bg-white p-4 border-r">
+            <h2 class="text-xl font-bold mb-4">智能反诈</h2>
             <div class="space-y-2">
-                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">Page 1</button>
-                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">Page 2</button>
-                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">Page 3</button>
+                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">这里</button>
+                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">全是</button>
+                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">空的</button>
             </div>
         </div>
-        <div id="chat-window" class="w-3/4 p-4">
+        <div id="chat-window" class="w-5/6 p-4">
         </div>
     </div>
 
