@@ -1,37 +1,37 @@
 package cn.arorms.raicom.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
-import org.springframework.ai.chroma.vectorstore.ChromaVectorStore;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class AgentController {
     private final ChatClient chatClient;
-    private final ChromaVectorStore vectorStore;
 
-    public AgentController(ChatClient chatClient, ChromaVectorStore vectorStore) {
+    public AgentController(ChatClient chatClient) {
         this.chatClient = chatClient;
-        this.vectorStore = vectorStore;
     }
 
+    /**
+     * 普通问答接口（非流式）
+     */
     @GetMapping("/chat")
-    String generation(String userInput) {
+    public String generation(@RequestParam String userInput) {
         return this.chatClient.prompt()
                 .user(userInput)
                 .call()
-                .content();
+                .content(); // 返回完整内容字符串
     }
 
-    @GetMapping("/chatWithRag")
-    String generationWithRag(String userInput) {
+    /**
+     * 流式问答接口（返回字符串流 Flux<String>）
+     */
+    @GetMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> generationStream(@RequestParam String userInput) {
         return this.chatClient.prompt()
-                .advisors(new QuestionAnswerAdvisor(vectorStore))
                 .user(userInput)
-                .call()
-                .content();
+                .stream()
+                .content(); // 返回 Flux<String>
     }
 }
