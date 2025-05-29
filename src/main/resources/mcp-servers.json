@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/cacc/Desktop",
+        "/home/cacc/Downloads"
+      ]
+    },
+    "ujs-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/home/cacc/Repositories/ujs-mcp-server",
+        "run",
+        "bill_query.py"
+      ]
+    },
+    "fraudbase-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory,",
+        "/home/cacc/Repositories/fraud-base-mcp-server",
+        "run",
+        "query_case.py"
+      ]
+    }
+  }
+}
