@@ -1,43 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>反诈智能客服 - 聊天</title>
-    <!-- Tailwind CDN (China Mirror) -->
+  <head>
+    <meta charset="UTF-8" />
+    <title>智能金融反诈系统 - 聊天</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .streaming-text {
-            transition: opacity 0.3s ease;
-        }
-        .streaming-text.streaming {
-            opacity: 0.7;
-        }
-        .streaming-text.complete {
-            opacity: 1;
-        }
-    </style>
-    <!-- Babel for JSX -->
+    <!-- React + ReactDOM -->
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <!-- Babel 编译 JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
-<body class="bg-gray-100 text-gray-800 h-screen">
+    <style>
+      .streaming-text {
+        transition: opacity 0.3s ease;
+      }
+      .streaming-text.streaming {
+        opacity: 0.7;
+      }
+      .streaming-text.complete {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-800 h-screen">
     <div class="flex h-full">
-        <div id="side-bar" class="w-1/6 bg-white p-4 border-r">
-            <h2 class="text-xl font-bold mb-4">智能反诈</h2>
-            <div class="space-y-2">
-                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">这里</button>
-                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">全是</button>
-                <button class="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">空的</button>
-            </div>
-        </div>
-        <div id="chat-window" class="w-5/6 p-4">
-        </div>
+      <div id="side-bar" class="w-1/6 bg-white border-r"></div>
+      <div id="chat-window" class="w-5/6 p-4"></div>
     </div>
-
-<!-- React + ReactDOM CDN -->
-<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-
-<!-- Your JSX file -->
-<script type="text/babel" src="chat.jsx"></script>
-</body>
+    <script type="text/babel" src="components/ChatWindow.jsx"></script>
+    <script type="text/babel" src="components/Sidebar.jsx"></script>
+  </body>
 </html>

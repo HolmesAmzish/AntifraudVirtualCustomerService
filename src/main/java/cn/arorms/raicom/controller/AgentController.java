@@ -5,6 +5,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+/**
+ * AgentController.java
+ * @version 1.0 2025-05-30
+ * @author cacc
+ */
 @RestController
 public class AgentController {
     private final ChatClient chatClient;
@@ -21,7 +26,7 @@ public class AgentController {
         return this.chatClient.prompt()
                 .user(userInput)
                 .call()
-                .content(); // 返回完整内容字符串
+                .content();
     }
 
     /**
@@ -32,6 +37,6 @@ public class AgentController {
         return this.chatClient.prompt()
                 .user(userInput)
                 .stream()
-                .content(); // 返回 Flux<String>
+                .content();
     }
 }

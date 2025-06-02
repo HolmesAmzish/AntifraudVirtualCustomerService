@@ -1,13 +1,4 @@
 {
   "mcpServers": {
-    "ujs-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/home/cacc/Repositories/ujs-mcp-server",
-        "run",
-        "bill_query.py"
-      ]
-    }
   }
 }
