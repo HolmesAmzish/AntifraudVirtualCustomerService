@@ -1,6 +1,7 @@
 package cn.arorms.raicom.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -19,9 +20,8 @@ public class AgentController {
         this.chatClient = chatClient;
     }
 
-    /**
-     * 普通问答接口（非流式）
-     */
+    String conversationId = "678";
+
     @GetMapping("/chat")
     public String generation(@RequestParam String userInput) {
         return this.chatClient.prompt()
@@ -30,12 +30,10 @@ public class AgentController {
                 .content();
     }
 
-    /**
-     * 流式问答接口（返回字符串流 Flux<String>）
-     */
     @GetMapping(value = "/streamChat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> generationStream(@RequestParam String userInput) {
         return this.chatClient.prompt()
+                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .user(userInput)
                 .stream()
                 .content();

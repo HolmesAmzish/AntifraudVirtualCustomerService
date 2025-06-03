@@ -4,8 +4,8 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-6">
-      <div className="max-w-4xl w-full space-y-12 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
+      <div className="max-w-4xl w-full space-y-12 text-center p-6">
         <div className="space-y-6">
           <h1 className="text-5xl font-bold text-gray-900">
             智能金融反诈系统
