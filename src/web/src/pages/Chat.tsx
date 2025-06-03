@@ -1,9 +1,9 @@
-import ChatWindow from "./ChatWindow";
+import ChatWindow from "../components/ChatWindow";
 import Sidebar from "../components/Sidebar";
 
 export default function Chat() {
   return (
-    <div className="flex h-full bg-gray-100 text-gray-800 h-screen">
+    <div className="flex h-screen bg-gray-100 text-gray-800">
       <div id="side-bar" className="w-1/6 bg-white border-r">
         <Sidebar />
       </div>

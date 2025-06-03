@@ -12,16 +12,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: true,
-    rollupOptions: {
-      input: {
-        home: path.resolve(__dirname, 'src/home/index.html'),
-        chat: path.resolve(__dirname, 'src/chat/index.html')
-      }
-    }
+    sourcemap: true
   },
   server: {
-    port: 3000,
-    open: '/home/index.html'  // 启动 dev server 默认打开 home 页
+    port: 3000
   }
 })
