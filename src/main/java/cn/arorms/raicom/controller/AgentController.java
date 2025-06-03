@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
  * @author cacc
  */
 @RestController
+@RequestMapping("/api/agent")
 public class AgentController {
     private final ChatClient chatClient;
 
@@ -32,7 +33,7 @@ public class AgentController {
     /**
      * 流式问答接口（返回字符串流 Flux<String>）
      */
-    @GetMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/streamChat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> generationStream(@RequestParam String userInput) {
         return this.chatClient.prompt()
                 .user(userInput)

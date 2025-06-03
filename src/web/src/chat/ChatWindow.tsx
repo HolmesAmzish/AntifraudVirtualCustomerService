@@ -1,9 +1,17 @@
-const { useState, useRef, useEffect } = React;
+import React, { useState, useRef, useEffect } from 'react';
+
+interface Message {
+  sender: 'user' | 'ai';
+  text: string;
+  completeText?: string;
+  streamingText?: string;
+  streamingOpacity?: number;
+}
 
 function ChatWindow() {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([]);
-  const messagesEndRef = useRef(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -16,18 +24,18 @@ function ChatWindow() {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userMessage = { sender: "user", text: input };
+    const userMessage: Message = { sender: "user", text: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput(""); // Clear input immediately
 
     try {
       // Create a new AI message with empty text
-      const aiMessage = { sender: "ai", text: "" };
+      const aiMessage: Message = { sender: "ai", text: "" };
       setMessages((prev) => [...prev, aiMessage]);
 
       // Use EventSource for streaming response
       const eventSource = new EventSource(
-        `/chat/stream?userInput=${encodeURIComponent(input)}`
+        `/api/agent/streamChat?userInput=${encodeURIComponent(input)}`
       );
       let aiText = "";
 
@@ -66,12 +74,12 @@ function ChatWindow() {
     } catch (e) {
       setMessages((prev) => [
         ...prev,
-        { sender: "ai", text: "Error: " + e.message },
+        { sender: "ai", text: "Error: " + (e as Error).message } as Message,
       ]);
     }
   };
 
-  const handleKey = (e) => {
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") sendMessage();
   };
 
@@ -127,4 +135,4 @@ function ChatWindow() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("chat-window")).render(<ChatWindow />);
+export default ChatWindow;

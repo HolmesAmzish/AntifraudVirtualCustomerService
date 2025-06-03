@@ -18,5 +18,4 @@ const Sidebar = () => {
   );
 };
 
-// 在这里挂载组件
-ReactDOM.createRoot(document.getElementById("side-bar")).render(<Sidebar />);
+export default Sidebar;

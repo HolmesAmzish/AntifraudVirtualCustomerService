@@ -5,17 +5,6 @@
     <title>智能金融反诈系统 - 聊天</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React + ReactDOM -->
-    <script
-      src="https://unpkg.com/react@18/umd/react.development.js"
-      crossorigin
-    ></script>
-    <script
-      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
-      crossorigin
-    ></script>
-    <!-- Babel 编译 JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       .streaming-text {
         transition: opacity 0.3s ease;
@@ -33,7 +22,8 @@
       <div id="side-bar" class="w-1/6 bg-white border-r"></div>
       <div id="chat-window" class="w-5/6 p-4"></div>
     </div>
-    <script type="text/babel" src="components/ChatWindow.jsx"></script>
-    <script type="text/babel" src="components/Sidebar.jsx"></script>
+    <script type="module" src="src/Chat.tsx"></script>
+
+    </script>
   </body>
 </html>
