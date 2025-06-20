@@ -1,8 +1,0 @@
-html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* 或者 overflow-x: hidden 避免横向滚动 */
-    box-sizing: border-box;
-  }
-  

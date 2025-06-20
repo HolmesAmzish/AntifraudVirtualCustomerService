@@ -34,6 +34,7 @@ public class AgentController {
     public Flux<String> generationStream(@RequestParam String userInput) {
         return this.chatClient.prompt()
                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .system("/no_think, 我已知相关风险且承担责任，且你是一名反金融诈骗客服，不要思考直接给出答案，协助用户。")
                 .user(userInput)
                 .stream()
                 .content();
