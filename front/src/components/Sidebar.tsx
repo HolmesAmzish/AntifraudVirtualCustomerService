@@ -1,21 +1,45 @@
-// sidebar.jsx
+import { useState } from 'react';
+import DropdownMenu from './DropdownMenu';
+
 const Sidebar = () => {
-    return (
-      <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">智能反诈</h2>
+  const [activeButton, setActiveButton] = useState('聊天');
+  
+  return (
+    <div className="p-4 flex flex-col h-full shadow-md">
+      <div>
+        {/* 移除标题 */}
         <div className="space-y-2">
-          <button className="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">
-            这里
+          <button 
+            className={`w-full p-2 rounded hover:bg-gray-200 ${
+              activeButton === '聊天' ? 'bg-gray-200' : 'bg-white'
+            }`}
+            onClick={() => setActiveButton('聊天')}
+          >
+            聊天
           </button>
-          <button className="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">
-            全是
+          <button 
+            className={`w-full p-2 rounded hover:bg-gray-200 ${
+              activeButton === '新闻' ? 'bg-gray-200' : 'bg-white'
+            }`}
+            onClick={() => setActiveButton('新闻')}
+          >
+            新闻
           </button>
-          <button className="w-full p-2 bg-gray-100 rounded hover:bg-gray-200">
-            空的
+          <button 
+            className={`w-full p-2 rounded hover:bg-gray-200 ${
+              activeButton === '设置' ? 'bg-gray-200' : 'bg-white'
+            }`}
+            onClick={() => setActiveButton('设置')}
+          >
+            设置
           </button>
         </div>
       </div>
-    );
-  };
+      <div className="mt-auto">
+        <DropdownMenu />
+      </div>
+    </div>
+  );
+};
   
-  export default Sidebar;
+export default Sidebar;
