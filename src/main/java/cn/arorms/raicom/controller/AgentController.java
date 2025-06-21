@@ -2,7 +2,6 @@ package cn.arorms.raicom.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -16,11 +15,9 @@ import reactor.core.publisher.Flux;
 @RequestMapping("/api/agent")
 public class AgentController {
     private final ChatClient chatClient;
-    private final OllamaChatModel ollamaChatModel;
 
-    public AgentController(ChatClient chatClient, OllamaChatModel ollamaChatModel) {
+    public AgentController(ChatClient chatClient) {
         this.chatClient = chatClient;
-        this.ollamaChatModel = ollamaChatModel;
     }
 
     String conversationId = "678";
@@ -41,10 +38,5 @@ public class AgentController {
                 .user(userInput)
                 .stream()
                 .content();
-    }
-    @CrossOrigin(origins = {"http://localhost:5173", "http://avcs.arorms.cn"}, allowCredentials = "true")
-    @GetMapping(value="/streamGenerate", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> streamGenerate(@RequestParam String userInput) {
-        return ollamaChatModel.stream(userInput);
     }
 }

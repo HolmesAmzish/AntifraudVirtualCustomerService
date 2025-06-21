@@ -36,7 +36,7 @@ function ChatWindow() {
 
       // Use EventSource for streaming response
       const eventSource = new EventSource(
-        `http://localhost:8080/api/agent/streamGenerate?userInput=${encodeURIComponent(input)}`
+        `http://localhost:8080/api/agent/streamChat?userInput=${encodeURIComponent(input)}`
       );
       let aiText = "";
 
