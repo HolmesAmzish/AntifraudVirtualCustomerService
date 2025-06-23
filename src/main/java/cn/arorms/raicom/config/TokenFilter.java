@@ -32,14 +32,22 @@ public class TokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // ✅ 放行登录、注册等公开接口
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return; // ⚠️ 提前返回，不再执行后续逻辑
+        }
+
         String token = getTokenFromRequest(request);
 
         if (token != null) {
             String username = tokenProvider.getUsernameFromToken(token);
 
-            // 校验 token 是否合法，并且 username 一致
             if (tokenProvider.validateToken(token, username)) {
-                UserDetails userDetails = userService.loadUserByUsername(username);
+                UserDetails userDetails = userService.getUserByUsername(username);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());

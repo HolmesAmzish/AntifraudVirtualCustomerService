@@ -51,8 +51,10 @@ export default function RegisterModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <>
+      {/* Single modal container with backdrop blur */}
+      <div className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300 ${isOpen ? 'backdrop-blur-sm bg-black/30' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`bg-white rounded-lg p-6 w-full max-w-md transform transition-all duration-300 ease-out ${isOpen ? 'translate-y-0' : 'translate-y-10'}`}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">用户注册</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -116,7 +118,8 @@ export default function RegisterModal({
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

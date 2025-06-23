@@ -4,7 +4,7 @@ import axios from 'axios';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: () => void;
+  onLoginSuccess: (username: string) => void;
   onSwitchToRegister: () => void;
 }
 
@@ -20,7 +20,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
     setError('');
 
     try {
-      const response = await axios.post('/api/auth/login', {
+      const api_url = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const response = await axios.post(api_url + '/api/auth/login', {
         username,
         password
       }, {
@@ -30,8 +31,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
       });
 
       if (response.status === 200) {
-        localStorage.setItem('token', response.headers['authorization'].split(' ')[1]);
-        onLoginSuccess();
+        const token = response.headers['authorization'].split(' ')[1];
+        localStorage.setItem('token', token);
+        
+        // Decode and save username
+        const payload = token.split('.')[1];
+        const decoded = JSON.parse(atob(payload));
+        const username = decoded.sub || decoded.username;
+        localStorage.setItem('username', username);
+        
+        console.log('Login successful - Token:', token);
+        console.log('Username:', username);
+        
+        // Pass username to parent component
+        onLoginSuccess(username);
         onClose();
       }
     } catch (err) {
@@ -44,8 +57,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <>
+      {/* Single modal container with backdrop blur */}
+      <div className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-10000 ${isOpen ? 'backdrop-blur-sm bg-black/30' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`bg-white rounded-lg p-6 w-full max-w-md transform transition-all duration-300 ease-out ${isOpen ? 'translate-y-0' : 'translate-y-10'}`}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">用户登录</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -98,7 +113,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

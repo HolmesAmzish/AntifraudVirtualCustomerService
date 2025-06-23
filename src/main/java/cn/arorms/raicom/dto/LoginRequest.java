@@ -1,5 +1,10 @@
 package cn.arorms.raicom.dto;
 
+/**
+ * LoginRequest Data transfer object
+ * @version 1.0 2025-06-22
+ * @author Amzish
+ */
 public class LoginRequest {
     private String username;
     private String password;

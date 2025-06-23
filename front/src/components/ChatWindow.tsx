@@ -35,8 +35,9 @@ function ChatWindow() {
       setMessages((prev) => [...prev, aiMessage]);
 
       // Use EventSource for streaming response
+      const api_url = import.meta.env.VITE_API_URL
       const eventSource = new EventSource(
-        `http://localhost:8080/api/agent/streamChat?userInput=${encodeURIComponent(input)}`
+        `${api_url}/api/agent/streamChat?userInput=${encodeURIComponent(input)}`
       );
       let aiText = "";
 

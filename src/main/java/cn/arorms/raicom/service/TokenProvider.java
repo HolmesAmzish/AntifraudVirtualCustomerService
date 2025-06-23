@@ -1,8 +1,10 @@
 package cn.arorms.raicom.service;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 /**
@@ -12,10 +14,8 @@ import java.util.Date;
  */
 @Component
 public class TokenProvider {
-
     // Set token key
     private static final String SECRET_KEY = "BlessedIsHeThatWatchethAndKeepethHisGarments";
-
     // Set expiration to seven days
     private static final long EXPIRATION = 3600 * 24 * 7;
 
@@ -23,10 +23,15 @@ public class TokenProvider {
      * Generate token with username
      */
     public String generateToken(String username) {
+        Claims claims = Jwts.claims().setSubject(username).build();
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + EXPIRATION * 1000);
+        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
         return Jwts.builder()
-                .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION * 1000))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key)
                 .compact();
     }
 
@@ -50,7 +55,6 @@ public class TokenProvider {
             String extractedUsername = getUsernameFromToken(token);
             return (extractedUsername.equals(username) && !isTokenExpired(token));
         } catch (JwtException e) {
-            // Jwt 解析失败或已过期
             return false;
         }
     }

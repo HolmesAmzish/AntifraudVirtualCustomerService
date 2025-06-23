@@ -5,6 +5,8 @@ import cn.arorms.raicom.mapper.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * UserService
  * @version 1.0 2025-06-20
@@ -39,8 +41,12 @@ public class UserService {
         return user;
     }
 
-    public UserEntity loadUserByUsername(String username) {
-        UserEntity user = userMapper.getUserByEmail(username);
+    public List<UserEntity> getUsers() {
+        return userMapper.getUsers();
+    }
+
+    public UserEntity getUserByUsername(String username) {
+        UserEntity user = userMapper.getUserByUsername(username);
         if (user == null) {
             throw new RuntimeException("Invalid username or password.");
         }

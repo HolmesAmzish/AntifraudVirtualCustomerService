@@ -18,6 +18,11 @@
         WHERE email = #{email}
     </select>
 
+    <select id="getUsers" parameterType="String" resultType="cn.arorms.raicom.entity.UserEntity">
+        SELECT id, username
+        FROM users
+    </select>
+
     <!--  create new user  -->
     <insert id="insertUser" parameterType="cn.arorms.raicom.entity.UserEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO users (username, email, password)

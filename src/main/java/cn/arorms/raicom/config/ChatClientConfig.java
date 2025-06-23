@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ChatClientConfig {
+    OpenAiChatModel defaultChatModel = new OpenAiChatModel("", "");
+
     @Bean
     public ChatClient chatClient(
             ToolCallbackProvider tools,
@@ -26,5 +28,7 @@ public class ChatClientConfig {
                 .build();
     }
 
+    @Bean
+    public ChatClient reasonerChatClient(Open)
 }
 

@@ -8,31 +8,81 @@ function TopMenuBar() {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
+    // First try to get username from localStorage
+    const savedUsername = localStorage.getItem('username');
+    if (savedUsername) {
+      setUsername(savedUsername);
+      console.log('Loaded username from localStorage:', savedUsername);
+      return;
+    }
+
+    // Fallback to token decoding
     const token = localStorage.getItem('token');
     if (token) {
-      // Decode token to get username (simplified example)
       try {
         const payload = token.split('.')[1];
         const decoded = JSON.parse(atob(payload));
-        setUsername(decoded.username);
+        const username = decoded.sub || decoded.username;
+        localStorage.setItem('username', username);
+        setUsername(username);
+        console.log('Decoded username from token:', username);
       } catch (e) {
         console.error('Failed to decode token', e);
       }
     }
   }, []);
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (username?: string) => {
+    if (username) {
+      setUsername(username);
+      setIsLoginModalOpen(false);
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
+      try {
+        const payload = token.split('.')[1];
+        const decoded = JSON.parse(atob(payload));
+        const username = decoded.sub || decoded.username;
+        setUsername(username);
+        setIsLoginModalOpen(false);
+      } catch (e) {
+        console.error('Token decode error:', e);
+        localStorage.removeItem('token');
+      }
+    }
+  };
+
+  // Check if user is logged in by validating token
+  const isLoggedIn = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    
+    try {
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
-      setUsername(decoded.username);
+      // Basic token expiration check
+      const now = Math.floor(Date.now() / 1000);
+      const exp = decoded.exp;
+      return exp && exp > now;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Prevent opening login modal if already logged in
+  const handleLoginClick = () => {
+    if (!isLoggedIn()) {
+      setIsLoginModalOpen(true);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     setUsername('');
+    console.log('User logged out - cleared token and username');
   };
 
   return (
@@ -41,21 +91,18 @@ function TopMenuBar() {
         <div className="flex items-center">
           <div className="text-lg font-semibold text-gray-800">智能金融反诈骗客服系统</div>
         </div>
-        {username ? (
-          <div className="flex items-center">
-            <span className="mr-4 text-gray-600">{username}</span>
+        {isLoggedIn() ? (
             <button 
-              className="text-gray-600 hover:text-gray-900 px-3 py-1 rounded hover:bg-gray-100 transition-colors"
+              className="text-gray-600 hover:text-gray-900 mr-4 px-3 py-1 rounded hover:bg-gray-100 transition-colors"
               onClick={handleLogout}
             >
-              退出
+              {username}
             </button>
-          </div>
         ) : (
-          <button 
-            className="text-gray-600 hover:text-gray-900 mr-4 px-3 py-1 rounded hover:bg-gray-100 transition-colors"
-            onClick={() => setIsLoginModalOpen(true)}
-          >
+            <button 
+              className="text-gray-600 hover:text-gray-900 mr-4 px-3 py-1 rounded hover:bg-gray-100 transition-colors"
+              onClick={handleLoginClick}
+            >
             登录
           </button>
         )}
