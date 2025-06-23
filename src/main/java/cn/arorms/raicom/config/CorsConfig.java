@@ -7,6 +7,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+/**
+ * Cross-Origin configuration
+ * @version 1.0 2025-06-22
+ * @author Amzish
+ */
 @Configuration
 public class CorsConfig {
 

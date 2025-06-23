@@ -32,4 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-chroma_db/
+chroma_db
+
+src/main/resources/keys.properties

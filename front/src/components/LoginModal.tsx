@@ -59,7 +59,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, onSwitchTo
   return (
     <>
       {/* Single modal container with backdrop blur */}
-      <div className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-10000 ${isOpen ? 'backdrop-blur-sm bg-black/30' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300 ${isOpen ? 'backdrop-blur-sm bg-black/30' : 'opacity-0 pointer-events-none'}`}>
         <div className={`bg-white rounded-lg p-6 w-full max-w-md transform transition-all duration-300 ease-out ${isOpen ? 'translate-y-0' : 'translate-y-10'}`}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">用户登录</h2>

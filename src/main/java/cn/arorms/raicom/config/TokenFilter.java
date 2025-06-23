@@ -28,31 +28,21 @@ public class TokenFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String path = request.getRequestURI();
-
-        // ✅ 放行登录、注册等公开接口
-        if (path.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response);
-            return; // ⚠️ 提前返回，不再执行后续逻辑
-        }
-
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
         String token = getTokenFromRequest(request);
-
         if (token != null) {
             String username = tokenProvider.getUsernameFromToken(token);
-
             if (tokenProvider.validateToken(token, username)) {
                 UserDetails userDetails = userService.getUserByUsername(username);
-
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                        userDetails, null,
+                        userDetails.getAuthorities()
+                );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

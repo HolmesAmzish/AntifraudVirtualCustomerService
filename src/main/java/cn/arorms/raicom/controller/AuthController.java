@@ -25,6 +25,7 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Login controller
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         String username = request.getUsername();
@@ -41,7 +42,7 @@ public class AuthController {
                 .build();
     }
 
-    // 注册接口
+    // Register controller
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         UserEntity user = userService.registerUser(
@@ -57,7 +58,7 @@ public class AuthController {
                 .body("注册成功");
     }
 
-    // 假设这是验证密码的方法（实际应使用 BCryptPasswordEncoder.matches）
+    // Compare the encoded password
     private boolean passwordMatches(String raw, String encoded) {
         return passwordEncoder.matches(raw, encoded);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
+import UserDropdownMenu from './UserDropdownMenu';
 
 function TopMenuBar() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -87,17 +88,24 @@ function TopMenuBar() {
 
   return (
     <>
-      <div className="flex justify-between items-center p-4 border-b bg-gray-50">
+      <div className="flex justify-between items-center p-4 border-b bg-white/70 backdrop-blur-lg shadow-sm">
         <div className="flex items-center">
           <div className="text-lg font-semibold text-gray-800">智能金融反诈骗客服系统</div>
         </div>
         {isLoggedIn() ? (
-            <button 
-              className="text-gray-600 hover:text-gray-900 mr-4 px-3 py-1 rounded hover:bg-gray-100 transition-colors"
-              onClick={handleLogout}
-            >
-              {username}
-            </button>
+            <div className="relative">
+              <UserDropdownMenu 
+                trigger={
+                  <button className="text-gray-600 hover:text-gray-900 mr-4 px-3 py-1 rounded hover:bg-gray-100 transition-colors">
+                    {username}
+                  </button>
+                }
+                items={[
+                  { label: '设置', onClick: () => console.log('Settings clicked') },
+                  { label: '退出', onClick: handleLogout }
+                ]}
+              />
+            </div>
         ) : (
             <button 
               className="text-gray-600 hover:text-gray-900 mr-4 px-3 py-1 rounded hover:bg-gray-100 transition-colors"

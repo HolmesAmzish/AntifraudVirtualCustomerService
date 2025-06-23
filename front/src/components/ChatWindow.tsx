@@ -1,16 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github.css';
 
 interface Message {
   sender: 'user' | 'ai';
   text: string;
-  completeText?: string;
   streamingText?: string;
-  streamingOpacity?: number;
+  finalText?: string;
+  isStreamingComplete?: boolean;
 }
 
 function ChatWindow() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [useDeepThinking, setUseDeepThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -36,8 +41,9 @@ function ChatWindow() {
 
       // Use EventSource for streaming response
       const api_url = import.meta.env.VITE_API_URL
+      const endpoint = useDeepThinking ? "reasoner/streamChat" : "default/streamChat";
       const eventSource = new EventSource(
-        `${api_url}/api/agent/streamChat?userInput=${encodeURIComponent(input)}`
+        `${api_url}/api/agent/${endpoint}?userInput=${encodeURIComponent(input)}`
       );
       let aiText = "";
 
@@ -55,11 +61,8 @@ function ChatWindow() {
           const newMessages = [...prev];
           const lastMsg = newMessages[newMessages.length - 1];
 
-          // Keep last 5 characters as streaming text
-          const streamingLength = Math.min(5, aiText.length);
-          lastMsg.streamingText = aiText.slice(-streamingLength);
-          lastMsg.completeText = aiText.slice(0, -streamingLength);
-          lastMsg.streamingOpacity = 0.2; // Stronger fade effect
+          lastMsg.streamingText = aiText;
+          lastMsg.isStreamingComplete = false;
 
           return newMessages;
         });
@@ -71,9 +74,9 @@ function ChatWindow() {
         setMessages((prev) => {
           const newMessages = [...prev];
           const lastMsg = newMessages[newMessages.length - 1];
-          lastMsg.completeText = aiText || "接收失败";
+          lastMsg.finalText = aiText || "接收失败";
+          lastMsg.isStreamingComplete = true;
           lastMsg.streamingText = "";
-          lastMsg.streamingOpacity = 1;
           return newMessages;
         });
       };
@@ -110,17 +113,17 @@ function ChatWindow() {
   ];
 
   const handlePromptClick = (prompt: {title: string, description: string}) => {
-    setInput(prompt.title);
+    setInput(prompt.description);
     setShowPrompts(false);
     setTimeout(() => sendMessage(), 100);
   };
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4">
+      <div className="flex-1 overflow-y-auto space-y-4 px-12 py-0">
         {showPrompts && messages.length === 0 && (
           <div className="flex justify-center mb-2">
-            <div className="grid grid-cols-2 gap-2 w-full max-w-2xl">
+            <div className="grid grid-cols-2 gap-2 w-full max-w-xl">
               {prompts.map((prompt, i) => (
                 <div 
                   key={i}
@@ -142,36 +145,33 @@ function ChatWindow() {
               </div>
             </div>
           ) : (
-            <div key={i} className="text-gray-700 p-2 whitespace-pre-wrap">
-              {msg.sender === "ai" ? (
-                <>
-                  <span className="complete-text">
-                    {msg.completeText || ""}
-                  </span>
-                  <span
-                    className="streaming-text"
-                    style={{ opacity: msg.streamingOpacity || 1 }}
-                  >
-                    {msg.streamingText || ""}
-                  </span>
-                </>
-              ) : (
-                <span>{msg.text}</span>
-              )}
-            </div>
+              <div key={i} className={`text-gray-700 p-2 markdown-body ${!msg.isStreamingComplete ? 'streaming' : ''}`}>
+                {msg.sender === "ai" ? (
+                  <>
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={msg.isStreamingComplete ? [rehypeHighlight] : []}
+                    >
+                      {msg.isStreamingComplete ? (msg.finalText || "") : (msg.streamingText || "")}
+                    </ReactMarkdown>
+                  </>
+                ) : (
+                  <span>{msg.text}</span>
+                )}
+              </div>
           )
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="flex flex-col w-full max-w-2xl mx-auto my-4">
+      <div className="flex flex-col w-full max-w-xl mx-auto my-4">
         <div className="flex border border-gray-300 rounded-2xl overflow-hidden">
           <input
             type="text"
-            className="flex-1 p-2 focus:outline-none"
+            className="flex-1 p-2 pl-4 focus:outline-none"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="   输入问题..."
+            placeholder="输入问题..."
           />
           <button
             onClick={sendMessage}
@@ -186,7 +186,13 @@ function ChatWindow() {
             <option>Deepseek-V3</option>
           </select>
           <div className="flex items-center space-x-2">
-            <input type="checkbox" id="deep-think" className="h-3 w-3" />
+            <input 
+              type="checkbox" 
+              id="deep-think" 
+              className="h-3 w-3" 
+              checked={useDeepThinking}
+              onChange={(e) => setUseDeepThinking(e.target.checked)}
+            />
             <label htmlFor="deep-think" className="text-gray-500">深度思考</label>
             <input type="checkbox" id="web-search" className="h-3 w-3" />
             <label htmlFor="web-search" className="text-gray-500">网页搜索</label>
