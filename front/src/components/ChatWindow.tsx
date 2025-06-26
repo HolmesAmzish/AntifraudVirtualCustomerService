@@ -16,7 +16,83 @@ function ChatWindow() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [useDeepThinking, setUseDeepThinking] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleVoiceInput = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('您的浏览器不支持语音识别功能');
+      return;
+    }
+
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const startRecording = () => {
+    setIsRecording(true);
+    audioChunksRef.current = [];
+    
+    // 初始化语音识别
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.lang = 'zh-CN';
+    recognitionRef.current.interimResults = true;
+    
+    recognitionRef.current.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0])
+        .map((result) => result.transcript)
+        .join('');
+      setInput(transcript);
+    };
+
+    recognitionRef.current.onerror = (event: any) => {
+      console.error('语音识别错误:', event.error);
+      setIsRecording(false);
+    };
+
+    recognitionRef.current.onend = () => {
+      if (isRecording) {
+        recognitionRef.current?.start();
+      }
+    };
+
+    recognitionRef.current.start();
+
+    // 获取麦克风权限并开始录音
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        
+        mediaRecorder.ondataavailable = (e) => {
+          audioChunksRef.current.push(e.data);
+        };
+        
+        mediaRecorder.start();
+      })
+      .catch((err) => {
+        console.error('获取麦克风权限失败:', err);
+        setIsRecording(false);
+      });
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+    recognitionRef.current?.stop();
+    
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -171,8 +247,20 @@ function ChatWindow() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="输入问题..."
+            placeholder={isRecording ? "正在录音..." : "输入问题..."}
           />
+          <button
+            onClick={handleVoiceInput}
+            className={`bg-white text-black px-3 hover:bg-gray-100 transition-colors flex items-center ${
+              isRecording ? 'bg-red-100' : ''
+            }`}
+          >
+            <img 
+              src="/src/assets/icons/voice.svg" 
+              alt="语音输入" 
+              className={`w-5 h-5 ${isRecording ? 'animate-pulse' : ''}`}
+            />
+          </button>
           <button
             onClick={sendMessage}
             className="bg-white text-black px-6 hover:bg-gray-100 transition-colors"

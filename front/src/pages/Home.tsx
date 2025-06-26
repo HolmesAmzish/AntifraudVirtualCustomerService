@@ -65,7 +65,7 @@ export default function Home() {
                   return (
                     <div
                       key={index}
-                      className={`relative cursor-pointer rounded-2xl bg-blue-50 p-5 shadow-lg transition-all duration-300 ${
+                      className={`relative cursor-pointer rounded-2xl bg-white p-5 shadow-lg transition-all duration-300 ${
                         isActive ? "flex-[5]" : "flex-1"
                       }`}
                       onClick={() => setActiveCard(index)}

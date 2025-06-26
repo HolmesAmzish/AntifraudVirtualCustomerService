@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.arorms.raicom.mapper.NewsMapper">
+    <resultMap id="NewsResultMap" type="cn.arorms.raicom.entity.NewsEntity">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="date" column="date"/>
+        <result property="summary" column="summary"/>
+        <result property="verdict" column="verdict"/>
+        <result property="significance" column="significance"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="NewsResultMap">
+        SELECT * FROM fraud_case
+    </select>
+
+    <select id="findById" parameterType="long" resultMap="NewsResultMap">
+        SELECT * FROM fraud_case WHERE id = #{id}
+    </select>
+
+<!--    <insert id="insert" parameterType="cn.arorms.raicom.entity.NewsEntity" useGeneratedKeys="true" keyProperty="id">-->
+<!--        INSERT INTO fraud_case (title, date, summary, verdict, significance)-->
+<!--        VALUES (#{title}, #{date}, #{summary}, #{verdict}, #{significance})-->
+<!--    </insert>-->
+
+<!--    <update id="update" parameterType="cn.arorms.raicom.entity.NewsEntity">-->
+<!--        UPDATE fraud_case-->
+<!--        SET title = #{title},-->
+<!--            date = #{date},-->
+<!--            summary = #{summary},-->
+<!--            verdict = #{verdict},-->
+<!--            significance = #{significance}-->
+<!--        WHERE id = #{id}-->
+<!--    </update>-->
+
+<!--    <delete id="delete" parameterType="long">-->
+<!--        DELETE FROM fraud_case WHERE id = #{id}-->
+<!--    </delete>-->
+</mapper>
+
