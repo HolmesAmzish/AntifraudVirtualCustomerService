@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import InfoIcon from '../assets/icons/info.svg';
+import { useNavigate } from 'react-router-dom';
 
 const DropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleAboutClick = () => {
+    navigate('/');
+    setIsOpen(false);
+  };
 
   return (
     <div className="relative mt-auto">
@@ -18,7 +25,10 @@ const DropdownMenu = () => {
           <button className="w-full p-2 text-left hover:bg-gray-100">
             颜色主题
           </button>
-          <button className="w-full p-2 text-left hover:bg-gray-100">
+          <button 
+            className="w-full p-2 text-left hover:bg-gray-100"
+            onClick={handleAboutClick}
+          >
             关于
           </button>
         </div>

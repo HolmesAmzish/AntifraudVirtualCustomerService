@@ -18,9 +18,8 @@ public class NewsController {
     private NewsService newsService;
 
     @GetMapping("/getAll")
-    public PageInfo<NewsEntity> getAllNews(@RequestParam(defaultValue = "1") int pageNum,
-                                          @RequestParam(defaultValue = "10") int pageSize) {
-        return newsService.getAllNews(pageNum, pageSize);
+    public List<NewsEntity> getAllNews() {
+        return newsService.getAllNews();
     }
 
     @GetMapping("/getById")

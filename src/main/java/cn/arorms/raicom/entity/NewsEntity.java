@@ -28,4 +28,16 @@ public class NewsEntity {
 
     public String getSignificance() { return significance; }
     public void setSignificance(String significance) { this.significance = significance; }
+
+    @Override
+    public String toString() {
+        return "NewsEntity{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", date=" + date +
+                ", summary='" + summary + '\'' +
+                ", verdict='" + verdict + '\'' +
+                ", significance='" + significance + '\'' +
+                '}';
+    }
 }

@@ -1,6 +1,7 @@
 package cn.arorms.raicom.mapper;
 
 import cn.arorms.raicom.entity.NewsEntity;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface NewsMapper {

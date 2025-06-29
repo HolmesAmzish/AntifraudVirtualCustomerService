@@ -10,6 +10,9 @@ interface Message {
   streamingText?: string;
   finalText?: string;
   isStreamingComplete?: boolean;
+  audioUrl?: string;
+  isGeneratingAudio?: boolean;
+  audioError?: string;
 }
 
 function ChatWindow() {
@@ -17,6 +20,112 @@ function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [useDeepThinking, setUseDeepThinking] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const generateSpeech = async (message: Message) => {
+    if (!message.text) return;
+
+    console.groupCollapsed('Voice Generation Process');
+    console.log('Starting speech generation for message:', message.text);
+    console.log('Message text length:', message.text.length);
+    console.time('VoiceGenerationTime');
+    
+    setMessages(prev => prev.map(msg => 
+      msg === message ? {...msg, isGeneratingAudio: true, audioError: undefined} : msg
+    ));
+
+    try {
+      console.log('Preparing API request to speech service');
+      const requestBody = {
+        input: message.text,
+        response_format: "mp3",
+        sample_rate: 32000,
+        stream: true,
+        speed: 1,
+        gain: 0,
+        model: "FunAudioLLM/CosyVoice2-0.5B",
+        voice: "FunAudioLLM/CosyVoice2-0.5B:anna"
+      };
+      console.log('Request body:', requestBody);
+
+      const startTime = Date.now();
+      const response = await fetch('https://api.siliconflow.cn/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer sk-deaxrgbwynpqdyhwdcoeegvmrvgsywmhdjxjztrcioupydzl',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('API request completed in', Date.now() - startTime, 'ms');
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API error details:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        throw new Error(`语音生成失败: ${response.status} ${errorText}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('Received audio data:', {
+        size: arrayBuffer.byteLength + ' bytes'
+      });
+      
+      // Create blob with explicit MIME type
+      const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(blob);
+      console.log('Created audio URL:', audioUrl);
+
+      setMessages(prev => prev.map(msg => 
+        msg === message ? {
+          ...msg, 
+          audioUrl, 
+          isGeneratingAudio: false,
+          audioError: undefined
+        } : msg
+      ));
+
+      // Create new audio element and play
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      console.log('Attempting to play audio');
+      audio.play().catch(e => {
+        console.error('Audio playback error:', e);
+        setMessages(prev => prev.map(msg => 
+          msg === message ? {
+            ...msg,
+            audioError: '播放失败: ' + e.message
+          } : msg
+        ));
+      });
+      
+      console.timeEnd('VoiceGenerationTime');
+      console.groupEnd();
+    } catch (err) {
+      const error = err as Error;
+      console.error('Voice generation failed:', {
+        error: error,
+        message: error?.message || 'Unknown error',
+        stack: error?.stack || 'No stack trace'
+      });
+      console.timeEnd('VoiceGenerationTime');
+      console.groupEnd();
+      
+      setMessages(prev => prev.map(msg => 
+        msg === message ? {
+          ...msg, 
+          isGeneratingAudio: false,
+          audioError: '语音生成失败，请重试'
+        } : msg
+      ));
+    }
+  };
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recognitionRef = useRef<any>(null);
@@ -124,37 +233,45 @@ function ChatWindow() {
       let aiText = "";
 
       eventSource.onmessage = (e) => {
-        console.log('Received SSE data:', e.data); // 添加调试日志
+        console.log('Received SSE data:', e.data);
         if (e.data === "[DONE]") {
           console.log('SSE stream completed');
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastMsg = newMessages[newMessages.length - 1];
+            lastMsg.finalText = aiText;
+            lastMsg.text = aiText; // 确保text字段包含完整内容
+            lastMsg.isStreamingComplete = true;
+            lastMsg.streamingText = "";
+            return newMessages;
+          });
           eventSource.close();
           return;
         }
 
         aiText += e.data;
-        console.log('Current AI text:', aiText); // 添加调试日志
+        console.log('Current AI text:', aiText);
         setMessages((prev) => {
           const newMessages = [...prev];
           const lastMsg = newMessages[newMessages.length - 1];
-
           lastMsg.streamingText = aiText;
           lastMsg.isStreamingComplete = false;
-
           return newMessages;
         });
       };
 
       eventSource.onerror = (e) => {
         console.error('SSE error:', e);
-        eventSource.close();
         setMessages((prev) => {
           const newMessages = [...prev];
           const lastMsg = newMessages[newMessages.length - 1];
           lastMsg.finalText = aiText || "接收失败";
+          lastMsg.text = aiText || "接收失败"; // 确保text字段包含完整内容
           lastMsg.isStreamingComplete = true;
           lastMsg.streamingText = "";
           return newMessages;
         });
+        eventSource.close();
       };
     } catch (e) {
       setMessages((prev) => [
@@ -230,6 +347,32 @@ function ChatWindow() {
                     >
                       {msg.isStreamingComplete ? (msg.finalText || "") : (msg.streamingText || "")}
                     </ReactMarkdown>
+                    {msg.isStreamingComplete && (
+                      <div className="mt-2 flex items-center">
+                        <button
+                          onClick={() => generateSpeech(msg)}
+                          disabled={msg.isGeneratingAudio}
+                          className="flex items-center text-sm text-gray-500 hover:text-gray-700"
+                        >
+                          <img 
+                            src="/src/assets/icons/voice.svg" 
+                            alt="语音播放" 
+                            className="w-4 h-4 mr-1"
+                          />
+                          {msg.isGeneratingAudio ? '生成中...' : '语音播放'}
+                        </button>
+                        {msg.audioError && (
+                          <span className="ml-2 text-red-500 text-sm">{msg.audioError}</span>
+                        )}
+                        {msg.audioUrl && (
+                          <audio 
+                            src={msg.audioUrl} 
+                            controls 
+                            className="ml-2 h-8"
+                          />
+                        )}
+                      </div>
+                    )}
                   </>
                 ) : (
                   <span>{msg.text}</span>

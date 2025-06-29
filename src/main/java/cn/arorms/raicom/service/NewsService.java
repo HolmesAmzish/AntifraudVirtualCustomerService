@@ -12,10 +12,8 @@ import java.util.List;
 public class NewsService {
     private NewsMapper newsMapper;
 
-    public PageInfo<NewsEntity> getAllNews(int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<NewsEntity> list = newsMapper.findAll();
-        return new PageInfo<>(list);
+    public List<NewsEntity> getAllNews() {
+        return newsMapper.findAll();
     }
 
     public NewsEntity getNewsById(Long id) {
